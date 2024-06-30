@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  user-management:
+    build: .
+    ports:
+      - '5001:5000'
+    env_file:
+      - .env
+    depends_on:
+      - user-db
+    command: sh -c "npx sequelize-cli db:migrate && npm run dev"
+    volumes:
+      - .:/app/data
+
+  user-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    ports:
+      - '5432:5432'
