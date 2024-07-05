@@ -1,7 +1,7 @@
 const express = require('express');
 const { createPatient, getPatients, getPatientById, updatePatient, deletePatient } = require('../controllers/patientController');
-const auth = require('../middleware/authMiddleware'); // Assuming you have auth middleware
-const roleMiddleware = require('../middleware/roleMiddleware'); // Assuming you have role middleware
+const auth = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
