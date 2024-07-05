@@ -1,9 +1,0 @@
-{
-  "development": {
-    "username": "username",
-    "password": "password",
-    "database": "patientdb",
-    "host": "patient-db",
-    "dialect": "postgres"
-  }
-}
