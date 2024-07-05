@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  patient-management:
+    build: .
+    ports:
+      - '5002:5002'
+    env_file:
+      - .env
+    depends_on:
+      - patient-db
+    command: sh -c "npm start"
+
+  patient-db:
+    image: mongo
+    ports:
+      - '27017:27017'
