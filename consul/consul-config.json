@@ -1,0 +1,15 @@
+{
+    "datacenter": "dc1",
+    "data_dir": "/consul/data",
+    "log_level": "INFO",
+    "node_name": "consul-server",
+    "server": true,
+    "bootstrap_expect": 1,
+    "ui": true,
+    "client_addr": "0.0.0.0",
+    "bind_addr": "0.0.0.0",
+    "advertise_addr": "127.0.0.1",
+    "retry_join": [
+        "127.0.0.1"
+    ]
+}
