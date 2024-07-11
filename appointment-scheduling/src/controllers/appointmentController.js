@@ -1,11 +1,13 @@
-const { Appointment } = require('../models');
+const Appointment = require('../models/Appointment');
 const jwt = require('jsonwebtoken');
 
 exports.createAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.create(req.body);
+        console.log(appointment);
         res.status(201).json(appointment);
     } catch (err) {
+        console.log(err);
         res.status(500).json({ error: 'Failed to create appointment' });
     }
 };
