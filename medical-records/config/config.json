@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "username",
+    "password": "password",
+    "database": "medicalrecordsdb",
+    "host": "medical-records-db",
+    "dialect": "postgres"
+  }
+}
