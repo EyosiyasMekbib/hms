@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  user-management:
+    build: ./user-management
+    ports:
+      - '5001:5000'
+    env_file:
+      - ./user-management/.env
+    depends_on:
+      - user-db
+    command: sh -c "npx sequelize-cli db:migrate && npm run dev"
+    volumes:
+      - .:/app/data
+
+  patient-management:
+    build: ./patient-management
+    ports:
+      - '5002:5002'
+    env_file:
+      - ./patient-management/.env
+    depends_on:
+      - patient-db
+    volumes:
+      - .:/app/data
+    command: sh -c "npm start"
+
+  patient-db:
+    image: mongo
+    ports:
+      - '27017:27017'
+  
+  user-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    ports:
+      - '5432:5432'
