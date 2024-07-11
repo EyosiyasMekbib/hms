@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  prescription-management:
+    build: .
+    ports:
+      - '5005:5005'
+    env_file:
+      - .env
+    depends_on:
+      - prescription-db
+    command: sh -c "npm start"
+
+  prescription-db:
+    image: mongo
+   
