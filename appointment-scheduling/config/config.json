@@ -2,8 +2,8 @@
   "development": {
     "username": "username",
     "password": "password",
-    "database": "userdb",
-    "host": "user-db",
+    "database": "appointmentdb",
+    "host": "appointment-db",
     "dialect": "postgres"
   }
 }
