@@ -1,76 +1,50 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 
-	"github.com/rabbitmq/amqp091-go"
+	"gopkg.in/gomail.v2"
 )
 
-var channel *amqp091.Channel
-
-func init() {
-	loadEnv()
-	_, ch := connectRabbitMQ()
-	channel = ch
+type Notification struct {
+	Message string `json:"message"`
+	ToEmail string `json:"to_email"`
 }
 
-func publishNotification(notification Notification) error {
-	q, err := channel.QueueDeclare(
-		"notifications", // name
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	body, err := json.Marshal(notification)
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err = channel.PublishWithContext(ctx,
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp091.Publishing{
-			ContentType: "application/json",
-			Body:        body,
-		})
-	return err
-}
-
-func createNotificationHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SendNotification(w http.ResponseWriter, r *http.Request) {
 	var notification Notification
-	err := json.NewDecoder(r.Body).Decode(&notification)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	notification.ID = generateID()
-	notification.CreatedAt = time.Now()
-
-	err = publishNotification(notification)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := json.NewDecoder(r.Body).Decode(&notification); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(notification)
+	if err := h.PublishMessage(notification); err != nil {
+		http.Error(w, "Failed to publish message", http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.SendEmail(notification); err != nil {
+		http.Error(w, "Failed to send email", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte("Notification sent"))
 }
 
-func generateID() string {
-	return time.Now().Format("20060102150405")
+func (h *Handler) SendEmail(notification Notification) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", h.Config.FromEmail)
+	m.SetHeader("To", notification.ToEmail)
+	m.SetHeader("Subject", "New Notification")
+	m.SetBody("text/plain", notification.Message)
+
+	d := gomail.NewDialer(h.Config.SMTPHost, h.Config.SMTPPort, h.Config.SMTPUser, h.Config.SMTPPassword)
+
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+
+	return nil
 }

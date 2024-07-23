@@ -1,26 +1,19 @@
 # Use the official Golang image as the base image
-FROM golang:1.23rc2
+FROM golang:1.22.5
 
-# Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy the Go module files
-COPY go.mod go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 
-# Install dependencies
+COPY *.go ./
+
 RUN go mod tidy
 
-# Copy the rest of the application code
-COPY . .
 
-# Make the wait-for-it script executable
-RUN chmod +x wait-for-it.sh
+RUN go build -o /notification-service
 
-# Build the Go application
-RUN go build -o main .
+COPY wait-for-it.sh ./
+EXPOSE 8080
 
-# Expose the port the app runs on
-EXPOSE 5006
-
-# Define the command to run the app
-CMD ["./wait-for-it.sh", "rabbitmq", "./main"]
+CMD [ "/notification-service" ]

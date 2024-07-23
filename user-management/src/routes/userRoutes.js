@@ -9,5 +9,6 @@ router.post('/register', register);
 router.post('/login', login);
 router.put('/role', auth, roleMiddleware(['admin']), updateRole);
 router.get('/', auth, roleMiddleware(['admin']), getAllUsers);
+router.get('/:id')
 
 module.exports = router;

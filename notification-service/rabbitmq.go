@@ -6,16 +6,11 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 )
 
-func connectRabbitMQ() (*amqp091.Connection, *amqp091.Channel) {
-	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
+func connectRabbitMQ(rabbitMQUrl string) (*amqp091.Connection, error) {
+	log.Println(rabbitMQUrl)
+	conn, err := amqp091.Dial(rabbitMQUrl)
 	if err != nil {
-		log.Fatalf("%s: %s", "Failed to connect to RabbitMQ", err)
+		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
 	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("%s: %s", "Failed to open a channel", err)
-	}
-
-	return conn, ch
+	return conn, nil
 }

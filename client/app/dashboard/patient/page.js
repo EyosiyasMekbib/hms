@@ -16,9 +16,13 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
+import { Cookie } from "next/font/google";
+import Cookies from "js-cookie";
 
 export default function Patients() {
     const [patients, setPatients] = useState([]);
+    const [filteredPatients, setFilteredPatients] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
@@ -27,17 +31,9 @@ export default function Patients() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [message, setMessage] = useState("");
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const [recordDetails, setRecordDetails] = useState("");
-    const [diagnosis, setDiagnosis] = useState("");
-    const [treatment, setTreatment] = useState("");
-    const [medication, setMedication] = useState("");
-    const [dosage, setDosage] = useState("");
-    const [frequency, setFrequency] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
     const [appointmentDate, setAppointmentDate] = useState("");
     const [appointmentMessage, setAppointmentMessage] = useState("");
-    const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzIyMzc1ODc5LCJleHAiOjE3MjM4MTU4Nzl9.7uuAzCsY2VgoiXJgjPECwRbnKpTxPivfHA8bb2_PevE"
+    const authToken = Cookies.get("authToken");
 
     useEffect(() => {
         if (authToken) {
@@ -53,6 +49,7 @@ export default function Patients() {
                 },
             });
             setPatients(response.data);
+            setFilteredPatients(response.data); // Initialize filtered patients
         } catch (error) {
             console.error("Failed to fetch patients", error);
         }
@@ -87,13 +84,13 @@ export default function Patients() {
         }
     };
 
-    const handleCreateAppointment = async (e) => {
+    const handleCreateAppointment = async (e, patientId, DocterId) => {
         e.preventDefault();
 
         try {
             const response = await axios.post("http://localhost/appointment-scheduling/api/appointments", {
-                patientId: selectedPatient._id,
-                doctorId: "some-doctor-id", // Replace with actual doctor ID
+                patientId: patientId,
+                doctorId: DocterId,
                 appointmentDate,
             }, {
                 headers: {
@@ -108,41 +105,19 @@ export default function Patients() {
         }
     };
 
-    const handleCreateMedicalRecord = async (e) => {
-        e.preventDefault();
-
-        // Mock successful response
-        const mockSuccessResponse = {
-            message: "Medical record with prescription created successfully",
-            data: {
-                patientId: selectedPatient._id,
-                recordDetails,
-                diagnosis,
-                treatment,
-                medication,
-                dosage,
-                frequency,
-                startDate,
-                endDate,
-            },
-        };
-
-        console.log("Mock medical record created with data:", mockSuccessResponse.data);
-
-        setMessage(mockSuccessResponse.message);
-        setRecordDetails("");
-        setDiagnosis("");
-        setTreatment("");
-        setMedication("");
-        setDosage("");
-        setFrequency("");
-        setStartDate("");
-        setEndDate("");
-        setSelectedPatient(null);
-    };
-
     const openDialog = (patient) => {
         setSelectedPatient(patient);
+    };
+
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+        const filtered = patients.filter((patient) =>
+            patient.firstName.toLowerCase().includes(query) ||
+            patient.lastName.toLowerCase().includes(query) ||
+            patient.phoneNumber.includes(query)
+        );
+        setFilteredPatients(filtered);
     };
 
     return (
@@ -151,6 +126,13 @@ export default function Patients() {
                 <div className="space-y-2 text-start">
                     <h2 className="text-3xl font-bold">Patients</h2>
                 </div>
+                <Input
+                    type="text"
+                    placeholder="Search patients..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="w-full mb-4"
+                />
                 <form className="flex space-x-4" onSubmit={handleCreatePatient}>
                     <div className="flex flex-col space-y-2 flex-1">
                         <Label htmlFor="firstName">First Name</Label>
@@ -242,7 +224,7 @@ export default function Patients() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {patients.map((patient) => (
+                            {filteredPatients.map((patient) => (
                                 <TableRow key={patient._id}>
                                     <TableCell>
                                         <Link href={`patient/${patient._id}`}>
@@ -257,89 +239,27 @@ export default function Patients() {
                                     <TableCell className="text-right">
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button onClick={() => openDialog(patient)}>Create Medical Record</Button>
+                                                <Button onClick={() => openDialog(patient)}>Set Appointment</Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
-                                                    <DialogTitle>Create Medical Record for {selectedPatient?.firstName} {selectedPatient?.lastName}</DialogTitle>
+                                                    <DialogTitle>Set Appointment for {selectedPatient?.firstName} {selectedPatient?.lastName}</DialogTitle>
                                                 </DialogHeader>
                                                 <div className="p-4">
-                                                    <form onSubmit={handleCreateMedicalRecord}>
-                                                        <Label htmlFor="recordDetails">Record Details</Label>
+                                                    <form onSubmit={handleCreateAppointment}>
+                                                        <Label htmlFor="appointmentDate">Appointment Date</Label>
                                                         <Input
-                                                            id="recordDetails"
-                                                            type="text"
-                                                            placeholder="Details of the medical record"
-                                                            value={recordDetails}
-                                                            onChange={(e) => setRecordDetails(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="diagnosis" className="mt-4">Diagnosis</Label>
-                                                        <Input
-                                                            id="diagnosis"
-                                                            type="text"
-                                                            placeholder="Diagnosis"
-                                                            value={diagnosis}
-                                                            onChange={(e) => setDiagnosis(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="treatment" className="mt-4">Treatment</Label>
-                                                        <Input
-                                                            id="treatment"
-                                                            type="text"
-                                                            placeholder="Treatment"
-                                                            value={treatment}
-                                                            onChange={(e) => setTreatment(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="medication" className="mt-4">Medication</Label>
-                                                        <Input
-                                                            id="medication"
-                                                            type="text"
-                                                            placeholder="Medication"
-                                                            value={medication}
-                                                            onChange={(e) => setMedication(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="dosage" className="mt-4">Dosage</Label>
-                                                        <Input
-                                                            id="dosage"
-                                                            type="text"
-                                                            placeholder="Dosage"
-                                                            value={dosage}
-                                                            onChange={(e) => setDosage(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="frequency" className="mt-4">Frequency</Label>
-                                                        <Input
-                                                            id="frequency"
-                                                            type="text"
-                                                            placeholder="Frequency"
-                                                            value={frequency}
-                                                            onChange={(e) => setFrequency(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="startDate" className="mt-4">Start Date</Label>
-                                                        <Input
-                                                            id="startDate"
+                                                            id="appointmentDate"
                                                             type="date"
-                                                            value={startDate}
-                                                            onChange={(e) => setStartDate(e.target.value)}
-                                                            required
-                                                        />
-                                                        <Label htmlFor="endDate" className="mt-4">End Date</Label>
-                                                        <Input
-                                                            id="endDate"
-                                                            type="date"
-                                                            value={endDate}
-                                                            onChange={(e) => setEndDate(e.target.value)}
+                                                            value={appointmentDate}
+                                                            onChange={(e) => setAppointmentDate(e.target.value)}
                                                             required
                                                         />
                                                         <Button type="submit" className="mt-4">
-                                                            Confirm Medical Record
+                                                            Confirm Appointment
                                                         </Button>
                                                     </form>
-                                                    {message && <p className="mt-2">{message}</p>}
+                                                    {appointmentMessage && <p className="mt-2">{appointmentMessage}</p>}
                                                 </div>
                                             </DialogContent>
                                         </Dialog>
