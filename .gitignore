@@ -8,8 +8,8 @@ logs/
 # Build output
 dist/
 
-# Environment variables
-.env
+# # Environment variables
+# .env
 
 # IDE files
 .vscode/
