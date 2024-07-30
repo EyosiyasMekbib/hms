@@ -25,10 +25,44 @@ services:
       - .:/app/data
     command: sh -c "npm start"
 
+  appointment-scheduling:
+    build: ./appointment-scheduling
+    ports:
+      - '5003:5003'
+    env_file:
+      - ./appointment-scheduling/.env
+    depends_on:
+      - appointment-db
+    command: sh -c "npx sequelize-cli db:migrate && npm start"
+
+  medical-records:
+    build: ./medical-records
+    ports:
+      - '5004:5004'
+    env_file:
+      - ./medical-records/.env
+    depends_on:
+      - medical-records-db
+    command: sh -c "npx sequelize-cli db:migrate && npm start"
+
+  prescription-management:
+    build: ./prescription-management
+    ports:
+      - '5005:5005'
+    env_file:
+      - ./prescription-management/.env
+    depends_on:
+      - prescription-db
+    command: sh -c "npm start"
+
+
   patient-db:
     image: mongo
     ports:
       - '27017:27017'
+  
+  prescription-db:
+    image: mongo
   
   user-db:
     image: postgres
@@ -38,3 +72,17 @@ services:
       POSTGRES_DB: userdb
     ports:
       - '5432:5432'
+  
+  appointment-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appointmentdb
+
+  medical-records-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: medicalrecordsdb
