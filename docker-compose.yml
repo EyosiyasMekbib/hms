@@ -55,6 +55,19 @@ services:
       - prescription-db
     command: sh -c "npm start"
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - user-management
+      - patient-management
+      - appointment-scheduling
+      - medical-records
+      - prescription-management
+
 
   patient-db:
     image: mongo
