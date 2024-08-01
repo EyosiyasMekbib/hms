@@ -2,30 +2,25 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const MedicalRecord = sequelize.define('MedicalRecord', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
-    },
     patientId: {
-        type: DataTypes.UUID,
-        allowNull: false,
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     doctorId: {
-        type: DataTypes.UUID,
-        allowNull: false,
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     visitDate: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
     },
     diagnosis: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     treatment: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
     },
 });
 

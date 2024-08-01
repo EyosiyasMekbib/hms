@@ -5,9 +5,9 @@ const roleMiddleware = require('../middleware/roleMiddleware'); // Assuming you 
 
 const router = express.Router();
 
-router.post('/', auth, roleMiddleware(['admin', 'doctor']), createPatient);
-router.get('/', auth, roleMiddleware(['admin', 'doctor', 'nurse']), getPatients);
-router.get('/:id', auth, roleMiddleware(['admin', 'doctor', 'nurse']), getPatientById);
+router.post('/', auth, createPatient);
+router.get('/', auth, getPatients);
+router.get('/:id', auth, getPatientById);
 router.put('/:id', auth, roleMiddleware(['admin', 'doctor']), updatePatient);
 router.delete('/:id', auth, roleMiddleware(['admin']), deletePatient);
 

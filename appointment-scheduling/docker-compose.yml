@@ -10,6 +10,8 @@ services:
     depends_on:
       - appointment-db
     command: sh -c "npx sequelize-cli db:migrate && npm start"
+    networks:
+      - hms-network
 
   appointment-db:
     image: postgres
@@ -17,3 +19,9 @@ services:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
       POSTGRES_DB: appointmentdb
+    networks:
+      - hms-network
+
+networks:
+  hms-network:
+    external: true
