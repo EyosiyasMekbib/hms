@@ -10,7 +10,14 @@ services:
     depends_on:
       - prescription-db
     command: sh -c "npm start"
+    networks:
+      - hms-network
 
   prescription-db:
     image: mongo
+    networks:
+      - hms-network
    
+networks:
+  hms-network:
+    external: true

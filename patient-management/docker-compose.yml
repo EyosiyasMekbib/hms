@@ -10,8 +10,16 @@ services:
     depends_on:
       - patient-db
     command: sh -c "npm start"
+    networks:
+      - hms-network
 
   patient-db:
     image: mongo
     ports:
       - '27017:27017'
+    networks:
+      - hms-network
+
+networks:
+  hms-network:
+    external: true

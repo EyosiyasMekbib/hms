@@ -1,101 +1,15 @@
 version: '3.8'
 
 services:
-  user-management:
-    build: ./user-management
-    ports:
-      - '5001:5000'
-    env_file:
-      - ./user-management/.env
-    depends_on:
-      - user-db
-    command: sh -c "npx sequelize-cli db:migrate && npm run dev"
-    volumes:
-      - .:/app/data
-
-  patient-management:
-    build: ./patient-management
-    ports:
-      - '5002:5002'
-    env_file:
-      - ./patient-management/.env
-    depends_on:
-      - patient-db
-    volumes:
-      - .:/app/data
-    command: sh -c "npm start"
-
-  appointment-scheduling:
-    build: ./appointment-scheduling
-    ports:
-      - '5003:5003'
-    env_file:
-      - ./appointment-scheduling/.env
-    depends_on:
-      - appointment-db
-    command: sh -c "npx sequelize-cli db:migrate && npm start"
-
-  medical-records:
-    build: ./medical-records
-    ports:
-      - '5004:5004'
-    env_file:
-      - ./medical-records/.env
-    depends_on:
-      - medical-records-db
-    command: sh -c "npx sequelize-cli db:migrate && npm start"
-
-  prescription-management:
-    build: ./prescription-management
-    ports:
-      - '5005:5005'
-    env_file:
-      - ./prescription-management/.env
-    depends_on:
-      - prescription-db
-    command: sh -c "npm start"
-
   nginx:
     image: nginx:latest
     ports:
       - '80:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - user-management
-      - patient-management
-      - appointment-scheduling
-      - medical-records
-      - prescription-management
+    networks:
+      - hms-network
 
-
-  patient-db:
-    image: mongo
-    ports:
-      - '27017:27017'
-  
-  prescription-db:
-    image: mongo
-  
-  user-db:
-    image: postgres
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: userdb
-    ports:
-      - '5432:5432'
-  
-  appointment-db:
-    image: postgres
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: appointmentdb
-
-  medical-records-db:
-    image: postgres
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: medicalrecordsdb
+networks:
+  hms-network:
+    external: true

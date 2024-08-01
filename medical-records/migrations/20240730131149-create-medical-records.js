@@ -3,38 +3,38 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('MedicalRecords', {
       id: {
-        allowNull: false,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
+
       patientId: {
-        type: Sequelize.UUID,
-        allowNull: false,
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       doctorId: {
-        type: Sequelize.UUID,
-        allowNull: false,
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       visitDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       diagnosis: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       treatment: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       createdAt: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
       updatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
