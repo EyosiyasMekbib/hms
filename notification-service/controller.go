@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -17,16 +18,32 @@ func init() {
 }
 
 func publishNotification(notification Notification) error {
+	q, err := channel.QueueDeclare(
+		"notifications", // name
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	body, err := json.Marshal(notification)
 	if err != nil {
 		return err
 	}
 
-	err = channel.Publish(
-		"",              // exchange
-		"notifications", // routing key
-		false,           // mandatory
-		false,           // immediate
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = channel.PublishWithContext(ctx,
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
 		amqp091.Publishing{
 			ContentType: "application/json",
 			Body:        body,

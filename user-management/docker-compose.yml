@@ -12,6 +12,8 @@ services:
     command: sh -c "npx sequelize-cli db:migrate && npm run dev"
     volumes:
       - .:/app/data
+    networks:
+      - hms-network
 
   user-db:
     image: postgres
@@ -21,3 +23,8 @@ services:
       POSTGRES_DB: userdb
     ports:
       - '5432:5432'
+    networks:
+      - hms-network
+networks:
+  hms-network:
+    external: true
